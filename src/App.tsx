@@ -20,6 +20,9 @@ import {
   Share2,
   SlidersHorizontal,
   Info,
+  User,
+  X,
+  Heart,
 } from 'lucide-react';
 
 export default function App() {
@@ -36,8 +39,14 @@ export default function App() {
 
   const mainContainerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   const activeTheme = THEMES[currentThemeId];
+
+  const focusNameInput = useCallback(() => {
+    nameInputRef.current?.focus();
+    nameInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, []);
 
   // Confetti trigger
   const triggerCelebration = useCallback(() => {
@@ -187,6 +196,56 @@ export default function App() {
           }}
         />
 
+        {/* Quick Name Personalizer Bar (Directly visible & accessible) */}
+        {!isFullscreen && (
+          <div className="w-full max-w-xl mx-auto mb-3 sm:mb-4 bg-neutral-900/90 border border-neutral-800 rounded-2xl p-2.5 shadow-xl backdrop-blur-md flex flex-col gap-2 transition-all">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-amber-400/10 flex items-center justify-center shrink-0 border border-amber-400/30">
+                <User className="w-4 h-4 text-amber-400" />
+              </div>
+              <div className="relative flex-1">
+                <input
+                  ref={nameInputRef}
+                  type="text"
+                  value={customName}
+                  onChange={(e) => setCustomName(e.target.value)}
+                  placeholder="Birthday Name / नाम डालें (e.g. Rahul, Priya, Alex)..."
+                  maxLength={28}
+                  className="w-full bg-neutral-950/80 border border-neutral-700/60 focus:border-amber-400 rounded-xl px-3.5 py-1.5 text-xs sm:text-sm text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-1 focus:ring-amber-400 pr-8"
+                />
+                {customName && (
+                  <button
+                    onClick={() => setCustomName('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white p-0.5 cursor-pointer"
+                    title="Clear Name"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Quick One-Click Name Suggestions */}
+            <div className="flex items-center gap-1.5 overflow-x-auto text-[11px] px-1 text-neutral-400 pb-0.5">
+              <span className="text-neutral-500 shrink-0 font-medium">Suggestions:</span>
+              {['Rahul', 'Priya', 'Aarav', 'Ananya', 'Mom', 'Dad', 'Bhaiya', 'Bestie'].map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => setCustomName(preset)}
+                  className={`px-2 py-0.5 rounded-md border text-[11px] transition-colors whitespace-nowrap cursor-pointer ${
+                    customName.toLowerCase() === preset.toLowerCase()
+                      ? 'border-amber-400 bg-amber-950/60 text-amber-300 font-semibold'
+                      : 'border-neutral-800 bg-neutral-950/40 hover:border-neutral-700 text-neutral-300 hover:text-white'
+                  }`}
+                >
+                  {preset}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* The Celebration Poster Canvas */}
         <div className="w-full max-w-5xl flex items-center justify-center">
           <CelebrationCanvas
@@ -198,6 +257,7 @@ export default function App() {
             customName={customName}
             customWish={customWish}
             onCanvasClick={triggerCelebration}
+            onEditName={focusNameInput}
           />
         </div>
       </main>

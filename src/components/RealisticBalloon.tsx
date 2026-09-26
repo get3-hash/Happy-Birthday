@@ -12,7 +12,6 @@ interface RealisticBalloonProps {
   stringLength?: number;
   stringCurve?: number;
   stringColor?: string;
-  blur?: number; // for depth of field
   opacity?: number;
   idSuffix: string;
   className?: string;
@@ -32,15 +31,15 @@ export const RealisticBalloon: React.FC<RealisticBalloonProps> = ({
   stringLength = 140,
   stringCurve = 25,
   stringColor,
-  blur = 0,
   opacity = 1,
   idSuffix,
   className = '',
   animationClass = '',
 }) => {
-  const gradId = `balloon-grad-${idSuffix}`;
-  const specId = `balloon-spec-${idSuffix}`;
-  const rimId = `balloon-rim-${idSuffix}`;
+  const gradId = `b-grad-${idSuffix}`;
+  const specId = `b-spec-${idSuffix}`;
+  const rimId = `b-rim-${idSuffix}`;
+  const shadowId = `b-shd-${idSuffix}`;
   const ry = r * 1.22; // natural oval balloon proportion
 
   const defaultStringColor = stringColor || colorHighlight;
@@ -51,10 +50,17 @@ export const RealisticBalloon: React.FC<RealisticBalloonProps> = ({
       style={{
         transformOrigin: `${cx}px ${cy + ry}px`,
         opacity,
-        filter: blur > 0 ? `blur(${blur}px)` : undefined,
+        willChange: 'transform',
       }}
     >
       <defs>
+        {/* Hardware-accelerated soft drop shadow without blur filter */}
+        <radialGradient id={shadowId} cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#000000" stopOpacity="0.45" />
+          <stop offset="65%" stopColor="#000000" stopOpacity="0.18" />
+          <stop offset="100%" stopColor="#000000" stopOpacity="0" />
+        </radialGradient>
+
         {/* Spherical Base 3D Radial Gradient */}
         <radialGradient
           id={gradId}
@@ -101,14 +107,13 @@ export const RealisticBalloon: React.FC<RealisticBalloonProps> = ({
       </defs>
 
       <g transform={`rotate(${tilt}, ${cx}, ${cy + ry})`}>
-        {/* Soft Drop Shadow on Ambient Environment */}
+        {/* Soft Drop Shadow using smooth radial gradient (Instant GPU calculation, NO lag) */}
         <ellipse
-          cx={cx + 6}
-          cy={cy + 8}
-          rx={r * 0.95}
-          ry={ry * 0.95}
-          fill="rgba(0,0,0,0.45)"
-          filter="blur(16px)"
+          cx={cx + 8}
+          cy={cy + 12}
+          rx={r * 1.15}
+          ry={ry * 1.15}
+          fill={`url(#${shadowId})`}
         />
 
         {/* Draped Curled Ribbon String */}
@@ -131,7 +136,6 @@ export const RealisticBalloon: React.FC<RealisticBalloonProps> = ({
               Q ${cx} ${cy + ry + 8} ${cx + 7} ${cy + ry + 6} 
               L ${cx + 5} ${cy + ry - 1} Z`}
           fill={colorShadow}
-          filter="drop-shadow(0 2px 2px rgba(0,0,0,0.5))"
         />
         <ellipse
           cx={cx}
@@ -173,7 +177,7 @@ export const RealisticBalloon: React.FC<RealisticBalloonProps> = ({
           style={{ mixBlendMode: 'screen' }}
         />
 
-        {/* Primary Specular Curved Highlight (Gives realistic latex/foil luster) */}
+        {/* Primary Specular Curved Highlight */}
         <path
           d={`M ${cx - r * 0.52} ${cy - ry * 0.42} 
               C ${cx - r * 0.42} ${cy - ry * 0.65}, 

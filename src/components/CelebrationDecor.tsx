@@ -6,7 +6,7 @@ interface CelebrationDecorProps {
   animated?: boolean;
 }
 
-export const CelebrationDecor: React.FC<CelebrationDecorProps> = ({
+export const CelebrationDecor = React.memo<CelebrationDecorProps>(({
   theme,
   animated = true,
 }) => {
@@ -52,10 +52,10 @@ export const CelebrationDecor: React.FC<CelebrationDecorProps> = ({
 
         {/* 4-point star macro */}
         <g id="sparkle-star">
+          <circle cx="0" cy="0" r="3" fill="#ffffff" opacity="0.9" />
           <path
             d="M 0,-10 Q 0,0 10,0 Q 0,0 0,10 Q 0,0 -10,0 Q 0,0 0,-10 Z"
             fill={goldColor}
-            filter="drop-shadow(0 0 3px rgba(254, 240, 138, 0.8))"
           />
         </g>
       </defs>
@@ -73,8 +73,19 @@ export const CelebrationDecor: React.FC<CelebrationDecorProps> = ({
       {/* Elegant Twisting Satin Ribbons (Framing corners gracefully) */}
       <g
         className={animated ? 'animate-float-1' : ''}
-        style={{ transformOrigin: 'top left' }}
+        style={{ transformOrigin: 'top left', willChange: 'transform' }}
       >
+        {/* Left flowing ribbon soft shadow stroke */}
+        <path
+          d="M -16,126 
+             C 94,146 144,266 84,386 
+             C 34,486 124,586 94,706 
+             C 74,786 24,866 -26,906"
+          fill="none"
+          stroke="rgba(0,0,0,0.35)"
+          strokeWidth="7"
+          strokeLinecap="round"
+        />
         {/* Left flowing ribbon strand 1 */}
         <path
           d="M -20,120 
@@ -85,8 +96,7 @@ export const CelebrationDecor: React.FC<CelebrationDecorProps> = ({
           stroke="url(#ribbon-twist-left)"
           strokeWidth="6"
           strokeLinecap="round"
-          filter="drop-shadow(0 4px 8px rgba(0,0,0,0.5))"
-          opacity="0.82"
+          opacity="0.85"
         />
         {/* Left inner curling accent ribbon */}
         <path
@@ -103,8 +113,19 @@ export const CelebrationDecor: React.FC<CelebrationDecorProps> = ({
 
       <g
         className={animated ? 'animate-float-2' : ''}
-        style={{ transformOrigin: 'top right' }}
+        style={{ transformOrigin: 'top right', willChange: 'transform' }}
       >
+        {/* Right flowing ribbon soft shadow stroke */}
+        <path
+          d="M 1024,116 
+             C 914,166 864,286 914,416 
+             C 964,526 874,646 924,776 
+             C 954,846 994,896 1034,926"
+          fill="none"
+          stroke="rgba(0,0,0,0.35)"
+          strokeWidth="7"
+          strokeLinecap="round"
+        />
         {/* Right flowing ribbon strand */}
         <path
           d="M 1020,110 
@@ -115,8 +136,7 @@ export const CelebrationDecor: React.FC<CelebrationDecorProps> = ({
           stroke="url(#ribbon-twist-right)"
           strokeWidth="6"
           strokeLinecap="round"
-          filter="drop-shadow(0 4px 8px rgba(0,0,0,0.5))"
-          opacity="0.82"
+          opacity="0.85"
         />
         {/* Right inner curling accent ribbon */}
         <path
@@ -212,4 +232,4 @@ export const CelebrationDecor: React.FC<CelebrationDecorProps> = ({
       </g>
     </svg>
   );
-};
+});

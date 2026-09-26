@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React from 'react';
 import { ThemeConfig, AspectRatio, FontChoice } from '../types';
 import { BalloonsGroup } from './BalloonsGroup';
 import { CelebrationDecor } from './CelebrationDecor';
@@ -11,6 +11,7 @@ interface CelebrationCanvasProps {
   customName?: string;
   customWish?: string;
   onCanvasClick?: () => void;
+  onEditName?: () => void;
   innerRef?: React.RefObject<HTMLDivElement | null>;
 }
 
@@ -22,24 +23,9 @@ export const CelebrationCanvas: React.FC<CelebrationCanvasProps> = ({
   customName,
   customWish,
   onCanvasClick,
+  onEditName,
   innerRef,
 }) => {
-  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Parallax subtle light shift
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
-    setMousePos({ x, y });
-  };
-
-  const handleMouseLeave = () => {
-    setMousePos({ x: 0.5, y: 0.5 });
-  };
-
   // Font family selector class
   const getFontFamilyClass = () => {
     switch (fontChoice) {
@@ -77,25 +63,16 @@ export const CelebrationCanvas: React.FC<CelebrationCanvasProps> = ({
   return (
     <div
       ref={innerRef}
-      className={`relative w-full mx-auto select-none rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl transition-all duration-500 ease-out cursor-pointer ${getAspectRatioClasses()}`}
+      className={`relative w-full mx-auto select-none rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl transition-all duration-300 ease-out cursor-pointer ${getAspectRatioClasses()}`}
       style={{
         border: `1px solid ${theme.cardBorder}`,
         background: theme.bgGradient,
         boxShadow: `0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 80px -20px ${theme.subtextColor}33`,
+        transform: 'translateZ(0)',
       }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
       onClick={onCanvasClick}
       title="Click to shower celebratory confetti"
     >
-      {/* Dynamic Ambient Spotlight following cursor subtly */}
-      <div
-        className="absolute inset-0 pointer-events-none transition-opacity duration-300"
-        style={{
-          background: `radial-gradient(circle 480px at ${mousePos.x * 100}% ${mousePos.y * 100}%, ${theme.subtextColor}1a, transparent 70%)`,
-        }}
-      />
-
       {/* Central Radiance Glow */}
       <div
         className="absolute inset-0 pointer-events-none"
@@ -148,20 +125,14 @@ export const CelebrationCanvas: React.FC<CelebrationCanvasProps> = ({
 
         {/* Word 1: "HAPPY" */}
         <h1
-          className={`text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-[0.14em] sm:tracking-[0.18em] leading-none mb-1 sm:mb-2 transition-transform duration-300 ${fontClass} ${theme.textClass}`}
-          style={{
-            transform: `translate3d(${(mousePos.x - 0.5) * 12}px, ${(mousePos.y - 0.5) * 8}px, 0)`,
-          }}
+          className={`text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-[0.14em] sm:tracking-[0.18em] leading-none mb-1 sm:mb-2 ${fontClass} ${theme.textClass}`}
         >
           HAPPY
         </h1>
 
         {/* Word 2: "BIRTHDAY" */}
         <h1
-          className={`text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black uppercase tracking-[0.08em] sm:tracking-[0.12em] leading-none transition-transform duration-300 ${fontClass} ${theme.textClass}`}
-          style={{
-            transform: `translate3d(${(mousePos.x - 0.5) * 16}px, ${(mousePos.y - 0.5) * 12}px, 0)`,
-          }}
+          className={`text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black uppercase tracking-[0.08em] sm:tracking-[0.12em] leading-none ${fontClass} ${theme.textClass}`}
         >
           BIRTHDAY
         </h1>
@@ -189,23 +160,51 @@ export const CelebrationCanvas: React.FC<CelebrationCanvasProps> = ({
           />
         </div>
 
-        {/* Optional Recipient Name */}
-        {customName && customName.trim() && (
-          <p
-            className="text-base sm:text-xl md:text-2xl font-semibold uppercase tracking-[0.25em] mb-1 sm:mb-2"
-            style={{
-              color: theme.subtextColor,
-              textShadow: '0 2px 10px rgba(0,0,0,0.8)',
+        {/* Recipient Name Display or Add Name Prompt */}
+        {customName && customName.trim() ? (
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              onEditName?.();
             }}
+            className="flex flex-col items-center pointer-events-auto cursor-pointer group px-4 py-1 rounded-xl hover:bg-white/5 transition-all mt-0.5"
+            title="Click to edit name / नाम बदलें"
           >
-            {customName.trim()}
-          </p>
+            <span
+              className="text-[10px] sm:text-xs uppercase tracking-[0.3em] font-medium opacity-80"
+              style={{ color: theme.subtextColor }}
+            >
+              Dear
+            </span>
+            <h2
+              className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-[0.14em] sm:tracking-[0.2em] leading-tight ${theme.textClass}`}
+            >
+              {customName.trim()}
+            </h2>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEditName?.();
+            }}
+            className="pointer-events-auto mt-1 px-4 py-1.5 rounded-full border border-dashed text-xs sm:text-sm font-medium transition-all cursor-pointer flex items-center gap-2 hover:scale-105 active:scale-95 shadow-md"
+            style={{
+              borderColor: `${theme.subtextColor}88`,
+              backgroundColor: 'rgba(0, 0, 0, 0.45)',
+              color: theme.subtextColor,
+            }}
+            title="Click to add birthday person's name"
+          >
+            <span>+ Add Name / नाम जोड़ें</span>
+          </button>
         )}
 
         {/* Optional Warm Wish Message */}
         {customWish && customWish.trim() && (
           <p
-            className="text-xs sm:text-sm md:text-base font-cormorant italic max-w-md px-4 leading-relaxed"
+            className="text-xs sm:text-sm md:text-base font-cormorant italic max-w-md px-4 mt-2 leading-relaxed"
             style={{
               color: theme.id === 'ivory' ? '#44403c' : 'rgba(255, 255, 255, 0.82)',
               textShadow: '0 2px 8px rgba(0,0,0,0.7)',

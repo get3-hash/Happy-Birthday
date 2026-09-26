@@ -7,7 +7,7 @@ interface BalloonsGroupProps {
   animated?: boolean;
 }
 
-export const BalloonsGroup: React.FC<BalloonsGroupProps> = ({
+export const BalloonsGroup = React.memo<BalloonsGroupProps>(({
   theme,
   animated = true,
 }) => {
@@ -34,8 +34,7 @@ export const BalloonsGroup: React.FC<BalloonsGroupProps> = ({
         tilt={-12}
         stringLength={280}
         stringCurve={18}
-        blur={1.8}
-        opacity={0.88}
+        opacity={0.82}
         animationClass={animated ? 'animate-float-3' : ''}
       />
 
@@ -104,8 +103,7 @@ export const BalloonsGroup: React.FC<BalloonsGroupProps> = ({
         tilt={11}
         stringLength={290}
         stringCurve={-20}
-        blur={1.8}
-        opacity={0.88}
+        opacity={0.82}
         animationClass={animated ? 'animate-float-2' : ''}
       />
 
@@ -161,4 +159,4 @@ export const BalloonsGroup: React.FC<BalloonsGroupProps> = ({
       />
     </svg>
   );
-};
+});

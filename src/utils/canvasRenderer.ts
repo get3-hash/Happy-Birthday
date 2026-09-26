@@ -467,35 +467,9 @@ export async function renderCelebrationToCanvas(
   renderMetallicWord('HAPPY', happyY, happySize, isWide ? 10 : 8);
   renderMetallicWord('BIRTHDAY', birthdayY, birthdaySize, isWide ? 7 : 5);
 
-  // 7. Optional Recipient Name or Custom Wish (Subtle and ultra-refined)
-  if (customName && customName.trim()) {
-    const nameY = birthdayY + birthdaySize * 0.88;
-    ctx.save();
-    ctx.font = `600 ${Math.round(birthdaySize * 0.32)}px 'Montserrat', sans-serif`;
-    ctx.letterSpacing = `${4 * scale}px`;
-    ctx.fillStyle = theme.subtextColor;
-    ctx.shadowColor = 'rgba(0,0,0,0.8)';
-    ctx.shadowBlur = 8 * scale;
-    ctx.fillText(customName.trim().toUpperCase(), width / 2, nameY);
-    ctx.restore();
-  }
-
-  if (customWish && customWish.trim()) {
-    const wishY = (customName && customName.trim())
-      ? birthdayY + birthdaySize * 1.25
-      : birthdayY + birthdaySize * 0.95;
-    ctx.save();
-    ctx.font = `italic 500 ${Math.round(birthdaySize * 0.24)}px 'Cormorant Garamond', Georgia, serif`;
-    ctx.fillStyle = theme.id === 'ivory' ? '#57534e' : 'rgba(255, 255, 255, 0.78)';
-    ctx.shadowColor = 'rgba(0,0,0,0.6)';
-    ctx.shadowBlur = 6 * scale;
-    ctx.fillText(customWish.trim(), width / 2, wishY);
-    ctx.restore();
-  }
-
-  // 8. Elegant Decorative Dividing Flourish or Hairlines
+  // 7. Elegant Decorative Dividing Flourish or Hairlines
   ctx.save();
-  const ruleY = birthdayY + birthdaySize * 0.65;
+  const ruleY = birthdayY + birthdaySize * 0.58;
   const ruleWidth = width * 0.36;
   const lineGrad = ctx.createLinearGradient(width / 2 - ruleWidth / 2, ruleY, width / 2 + ruleWidth / 2, ruleY);
   lineGrad.addColorStop(0, 'transparent');
@@ -518,6 +492,38 @@ export async function renderCelebrationToCanvas(
   ctx.lineTo(width / 2 - 5 * scale, ruleY);
   ctx.closePath();
   ctx.fill();
+  ctx.restore();
+
+  // 8. Recipient Name or Custom Wish (Grand & Prominent)
+  if (customName && customName.trim()) {
+    // "DEAR" prefix
+    const dearY = ruleY + birthdaySize * 0.22;
+    ctx.save();
+    ctx.font = `600 ${Math.round(birthdaySize * 0.18)}px 'Montserrat', sans-serif`;
+    ctx.letterSpacing = `${5 * scale}px`;
+    ctx.fillStyle = theme.subtextColor;
+    ctx.globalAlpha = 0.85;
+    ctx.fillText('DEAR', width / 2, dearY);
+    ctx.restore();
+
+    // Large Majestic Recipient Name
+    const nameY = dearY + birthdaySize * 0.38;
+    const nameFontSize = Math.round(birthdaySize * 0.48);
+    renderMetallicWord(customName.trim().toUpperCase(), nameY, nameFontSize, isWide ? 6 : 4);
+  }
+
+  if (customWish && customWish.trim()) {
+    const wishY = (customName && customName.trim())
+      ? ruleY + birthdaySize * 0.92
+      : ruleY + birthdaySize * 0.32;
+    ctx.save();
+    ctx.font = `italic 500 ${Math.round(birthdaySize * 0.22)}px 'Cormorant Garamond', Georgia, serif`;
+    ctx.fillStyle = theme.id === 'ivory' ? '#57534e' : 'rgba(255, 255, 255, 0.82)';
+    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    ctx.shadowBlur = 6 * scale;
+    ctx.fillText(customWish.trim(), width / 2, wishY);
+    ctx.restore();
+  }
   ctx.restore();
 
   return canvas;
