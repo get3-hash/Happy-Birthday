@@ -1,5 +1,5 @@
 import React from 'react';
-import { AspectRatio, ThemeId, THEMES } from '../types';
+import { AspectRatio, ThemeId, THEMES, THEME_KEYS } from '../types';
 import { Sparkles, Download, Maximize2, Minimize2, SlidersHorizontal } from 'lucide-react';
 
 interface ControlsHeaderProps {
@@ -14,7 +14,7 @@ interface ControlsHeaderProps {
   onToggleFullscreen: () => void;
 }
 
-export const ControlsHeader: React.FC<ControlsHeaderProps> = ({
+export const ControlsHeader = React.memo<ControlsHeaderProps>(({
   currentTheme,
   onSelectTheme,
   aspectRatio,
@@ -36,7 +36,7 @@ export const ControlsHeader: React.FC<ControlsHeaderProps> = ({
 
           {/* Quick Theme Swatches */}
           <div className="hidden sm:flex items-center gap-1.5 pl-3 border-l border-neutral-800">
-            {(Object.keys(THEMES) as ThemeId[]).map((themeKey) => {
+            {THEME_KEYS.map((themeKey) => {
               const item = THEMES[themeKey];
               const isSelected = currentTheme === themeKey;
               return (
@@ -143,4 +143,4 @@ export const ControlsHeader: React.FC<ControlsHeaderProps> = ({
       </div>
     </header>
   );
-};
+});

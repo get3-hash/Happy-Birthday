@@ -217,3 +217,6 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
     cardBorder: 'rgba(202, 138, 4, 0.25)',
   },
 };
+
+export const THEME_KEYS = Object.keys(THEMES) as ThemeId[];
+

@@ -3,13 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import confetti from 'canvas-confetti';
-import { ThemeId, THEMES, AspectRatio, FontChoice } from './types';
+import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from 'react';
+import { ThemeId, THEMES, THEME_KEYS, AspectRatio, FontChoice } from './types';
 import { CelebrationCanvas } from './components/CelebrationCanvas';
 import { ControlsHeader } from './components/ControlsHeader';
-import { ExportModal } from './components/ExportModal';
-import { CustomizeDrawer } from './components/CustomizeDrawer';
 import { playCelebrationChime } from './utils/audioChime';
 import {
   Sparkles,
@@ -17,13 +14,30 @@ import {
   Minimize2,
   Volume2,
   VolumeX,
-  Share2,
-  SlidersHorizontal,
-  Info,
   User,
   X,
-  Heart,
 } from 'lucide-react';
+
+import type confettiType from 'canvas-confetti';
+
+// Code-split heavy modal/drawer dialogs so they do not block initial page load
+const ExportModal = lazy(() =>
+  import('./components/ExportModal').then((mod) => ({ default: mod.ExportModal }))
+);
+const CustomizeDrawer = lazy(() =>
+  import('./components/CustomizeDrawer').then((mod) => ({ default: mod.CustomizeDrawer }))
+);
+
+// On-demand loader for canvas-confetti
+type ConfettiRunner = typeof confettiType;
+let confettiFn: ConfettiRunner | null = null;
+const loadConfetti = async (): Promise<ConfettiRunner> => {
+  if (!confettiFn) {
+    const mod = await import('canvas-confetti');
+    confettiFn = (mod.default ?? mod) as unknown as ConfettiRunner;
+  }
+  return confettiFn;
+};
 
 export default function App() {
   const [currentThemeId, setCurrentThemeId] = useState<ThemeId>('gold');
@@ -43,21 +57,50 @@ export default function App() {
 
   const activeTheme = THEMES[currentThemeId];
 
+  // Prefetch confetti and export module during browser idle time
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      loadConfetti();
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
   const focusNameInput = useCallback(() => {
     nameInputRef.current?.focus();
     nameInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }, []);
 
-  // Confetti trigger
-  const triggerCelebration = useCallback(() => {
+  const handleOpenExport = useCallback(() => {
+    setIsExportOpen(true);
+  }, []);
+
+  const handleCloseExport = useCallback(() => {
+    setIsExportOpen(false);
+  }, []);
+
+  const handleOpenCustomize = useCallback(() => {
+    setIsCustomizeOpen(true);
+  }, []);
+
+  const handleCloseCustomize = useCallback(() => {
+    setIsCustomizeOpen(false);
+  }, []);
+
+  const handleToggleAnimated = useCallback(() => {
+    setAnimated((prev) => !prev);
+  }, []);
+
+  // Confetti trigger with dynamic import
+  const triggerCelebration = useCallback(async () => {
     if (soundEnabled) {
       playCelebrationChime();
     }
 
+    const runConfetti = await loadConfetti();
     const colors = activeTheme.confettiColors;
 
     // Realistic burst 1: Left and Right cannons
-    confetti({
+    runConfetti({
       particleCount: 50,
       angle: 60,
       spread: 55,
@@ -65,7 +108,7 @@ export default function App() {
       colors,
       disableForReducedMotion: true,
     });
-    confetti({
+    runConfetti({
       particleCount: 50,
       angle: 120,
       spread: 55,
@@ -76,7 +119,7 @@ export default function App() {
 
     // Realistic burst 2: Center sparkle star shower
     setTimeout(() => {
-      confetti({
+      runConfetti({
         particleCount: 40,
         spread: 100,
         origin: { x: 0.5, y: 0.4 },
@@ -127,10 +170,9 @@ export default function App() {
         setIsExportOpen(false);
         setIsCustomizeOpen(false);
       } else if (['1', '2', '3', '4', '5'].includes(e.key)) {
-        const themeKeys = Object.keys(THEMES) as ThemeId[];
         const idx = parseInt(e.key, 10) - 1;
-        if (themeKeys[idx]) {
-          setCurrentThemeId(themeKeys[idx]);
+        if (THEME_KEYS[idx]) {
+          setCurrentThemeId(THEME_KEYS[idx]);
         }
       }
     };
@@ -152,8 +194,8 @@ export default function App() {
           aspectRatio={aspectRatio}
           onChangeAspectRatio={setAspectRatio}
           onTriggerCelebrate={triggerCelebration}
-          onOpenExport={() => setIsExportOpen(true)}
-          onToggleCustomize={() => setIsCustomizeOpen(true)}
+          onOpenExport={handleOpenExport}
+          onToggleCustomize={handleOpenCustomize}
           isFullscreen={isFullscreen}
           onToggleFullscreen={toggleFullscreen}
         />
@@ -271,7 +313,7 @@ export default function App() {
               <span className="text-[11px] uppercase tracking-wider text-neutral-500 font-semibold mr-1 shrink-0">
                 Themes:
               </span>
-              {(Object.keys(THEMES) as ThemeId[]).map((themeKey) => {
+              {THEME_KEYS.map((themeKey) => {
                 const item = THEMES[themeKey];
                 const isActive = currentThemeId === themeKey;
                 return (
@@ -317,35 +359,43 @@ export default function App() {
         </footer>
       )}
 
-      {/* Export & Share Modal */}
-      <ExportModal
-        isOpen={isExportOpen}
-        onClose={() => setIsExportOpen(false)}
-        theme={activeTheme}
-        aspectRatio={aspectRatio}
-        fontChoice={fontChoice}
-        customName={customName}
-        customWish={customWish}
-      />
+      {/* Export & Share Modal (Lazy Loaded) */}
+      {isExportOpen && (
+        <Suspense fallback={null}>
+          <ExportModal
+            isOpen={isExportOpen}
+            onClose={handleCloseExport}
+            theme={activeTheme}
+            aspectRatio={aspectRatio}
+            fontChoice={fontChoice}
+            customName={customName}
+            customWish={customWish}
+          />
+        </Suspense>
+      )}
 
-      {/* Customize Drawer */}
-      <CustomizeDrawer
-        isOpen={isCustomizeOpen}
-        onClose={() => setIsCustomizeOpen(false)}
-        currentTheme={currentThemeId}
-        onSelectTheme={setCurrentThemeId}
-        fontChoice={fontChoice}
-        onSelectFont={setFontChoice}
-        aspectRatio={aspectRatio}
-        onChangeAspectRatio={setAspectRatio}
-        animated={animated}
-        onToggleAnimated={() => setAnimated((prev) => !prev)}
-        customName={customName}
-        onChangeCustomName={setCustomName}
-        customWish={customWish}
-        onChangeCustomWish={setCustomWish}
-        onTriggerCelebrate={triggerCelebration}
-      />
+      {/* Customize Drawer (Lazy Loaded) */}
+      {isCustomizeOpen && (
+        <Suspense fallback={null}>
+          <CustomizeDrawer
+            isOpen={isCustomizeOpen}
+            onClose={handleCloseCustomize}
+            currentTheme={currentThemeId}
+            onSelectTheme={setCurrentThemeId}
+            fontChoice={fontChoice}
+            onSelectFont={setFontChoice}
+            aspectRatio={aspectRatio}
+            onChangeAspectRatio={setAspectRatio}
+            animated={animated}
+            onToggleAnimated={handleToggleAnimated}
+            customName={customName}
+            onChangeCustomName={setCustomName}
+            customWish={customWish}
+            onChangeCustomWish={setCustomWish}
+            onTriggerCelebrate={triggerCelebration}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

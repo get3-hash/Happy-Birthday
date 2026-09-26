@@ -15,7 +15,7 @@ interface CelebrationCanvasProps {
   innerRef?: React.RefObject<HTMLDivElement | null>;
 }
 
-export const CelebrationCanvas: React.FC<CelebrationCanvasProps> = ({
+export const CelebrationCanvas = React.memo<CelebrationCanvasProps>(({
   theme,
   aspectRatio,
   fontChoice,
@@ -229,4 +229,4 @@ export const CelebrationCanvas: React.FC<CelebrationCanvasProps> = ({
       />
     </div>
   );
-};
+});
