@@ -1,0 +1,171 @@
+@import "tailwindcss";
+
+@layer utilities {
+  /* Metallic Gold Foil Gradients */
+  .gold-foil-text {
+    background: linear-gradient(
+      135deg,
+      #fef08a 0%,
+      #facc15 20%,
+      #ca8a04 40%,
+      #fef9c3 60%,
+      #eab308 80%,
+      #a16207 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .gold-foil-text-3d {
+    background: linear-gradient(
+      180deg,
+      #fffbeb 0%,
+      #fef08a 25%,
+      #eab308 45%,
+      #ca8a04 60%,
+      #fde047 80%,
+      #854d0e 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 12px rgba(234, 179, 8, 0.35))
+            drop-shadow(0 15px 30px rgba(0, 0, 0, 0.7));
+  }
+
+  .rose-gold-text-3d {
+    background: linear-gradient(
+      180deg,
+      #fff1f2 0%,
+      #fecdd3 25%,
+      #fb7185 50%,
+      #e11d48 65%,
+      #fda4af 80%,
+      #9f1239 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 12px rgba(251, 113, 133, 0.4))
+            drop-shadow(0 15px 30px rgba(0, 0, 0, 0.7));
+  }
+
+  .platinum-silver-text-3d {
+    background: linear-gradient(
+      180deg,
+      #ffffff 0%,
+      #f1f5f9 25%,
+      #cbd5e1 50%,
+      #94a3b8 65%,
+      #f8fafc 80%,
+      #475569 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 12px rgba(203, 213, 225, 0.45))
+            drop-shadow(0 15px 30px rgba(0, 0, 0, 0.8));
+  }
+
+  .brass-emerald-text-3d {
+    background: linear-gradient(
+      180deg,
+      #fef9c3 0%,
+      #facc15 25%,
+      #ca8a04 50%,
+      #a16207 65%,
+      #fef08a 85%,
+      #713f12 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 14px rgba(250, 204, 21, 0.35))
+            drop-shadow(0 15px 30px rgba(0, 0, 0, 0.8));
+  }
+
+  /* Shimmer / light sweep */
+  @keyframes shimmer-sweep {
+    0% {
+      transform: translateX(-150%) skewX(-20deg);
+    }
+    100% {
+      transform: translateX(250%) skewX(-20deg);
+    }
+  }
+
+  .shimmer-light {
+    animation: shimmer-sweep 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  /* Gentle organic balloon float */
+  @keyframes float-subtle-1 {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-12px) rotate(1.5deg);
+    }
+  }
+
+  @keyframes float-subtle-2 {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-16px) rotate(-2deg);
+    }
+  }
+
+  @keyframes float-subtle-3 {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-10px) rotate(1deg);
+    }
+  }
+
+  .animate-float-1 {
+    animation: float-subtle-1 5.5s ease-in-out infinite;
+  }
+  .animate-float-2 {
+    animation: float-subtle-2 6.5s ease-in-out infinite;
+  }
+  .animate-float-3 {
+    animation: float-subtle-3 7.2s ease-in-out infinite;
+  }
+
+  /* Gentle pulse glow */
+  @keyframes glow-pulse {
+    0%, 100% {
+      opacity: 0.6;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.85;
+      transform: scale(1.04);
+    }
+  }
+
+  .animate-glow-pulse {
+    animation: glow-pulse 4s ease-in-out infinite;
+  }
+}
+
+/* Custom font shortcuts */
+.font-cinzel {
+  font-family: 'Cinzel', serif;
+}
+
+.font-cormorant {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+.font-montserrat {
+  font-family: 'Montserrat', sans-serif;
+}
+
+.font-playfair {
+  font-family: 'Playfair Display', serif;
+}
+
+.font-sans {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
